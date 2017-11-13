@@ -621,6 +621,11 @@ void MapDocument::toggleOtherLayers(Layer *layer)
     mLayerModel->toggleOtherLayers(layer);
 }
 
+void MapDocument::showOnlyLayer(Layer *layer)
+{
+    mLayerModel->showOnlyLayer(layer);
+}
+
 /**
  * Adds a tileset to this map at the given \a index. Emits the appropriate
  * signal.

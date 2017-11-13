@@ -21,6 +21,7 @@
 
 #include "mapdocumentactionhandler.h"
 
+#include "changelayer.h"
 #include "addremovelayer.h"
 #include "addremovemapobject.h"
 #include "changeselectedarea.h"
@@ -135,6 +136,21 @@ MapDocumentActionHandler::MapDocumentActionHandler(QObject *parent)
     mActionRemoveObjects = new QAction(this);
     mActionRemoveObjects->setIcon(QIcon(QLatin1String(":/images/16x16/edit-delete.png")));
 
+    mActionShowTileLayer1 = new QAction(this);
+    mActionShowTileLayer1->setShortcut(Qt::SHIFT | Qt::Key_1);
+    mActionShowTileLayer2 = new QAction(this);
+    mActionShowTileLayer2->setShortcut(Qt::SHIFT | Qt::Key_2);
+    mActionShowTileLayer3 = new QAction(this);
+    mActionShowTileLayer3->setShortcut(Qt::SHIFT | Qt::Key_3);
+    mActionShowTileLayer4 = new QAction(this);
+    mActionShowTileLayer4->setShortcut(Qt::SHIFT | Qt::Key_4);
+    mActionShowTileLayer5 = new QAction(this);
+    mActionShowTileLayer5->setShortcut(Qt::SHIFT | Qt::Key_5);
+    mActionShowTileLayer6 = new QAction(this);
+    mActionShowTileLayer6->setShortcut(Qt::SHIFT | Qt::Key_6);
+    mActionShowAllLayers = new QAction(this);
+    mActionShowAllLayers->setShortcut(Qt::SHIFT | Qt::Key_7);
+
     Utils::setThemeIcon(mActionRemoveLayer, "edit-delete");
     Utils::setThemeIcon(mActionMoveLayerUp, "go-up");
     Utils::setThemeIcon(mActionMoveLayerDown, "go-down");
@@ -168,6 +184,14 @@ MapDocumentActionHandler::MapDocumentActionHandler(QObject *parent)
     connect(mActionDuplicateObjects, &QAction::triggered, this, &MapDocumentActionHandler::duplicateObjects);
     connect(mActionRemoveObjects, &QAction::triggered, this, &MapDocumentActionHandler::removeObjects);
 
+    connect(mActionShowTileLayer1, &QAction::triggered, this, &MapDocumentActionHandler::showTileLayer1);
+    connect(mActionShowTileLayer2, &QAction::triggered, this, &MapDocumentActionHandler::showTileLayer2);
+    connect(mActionShowTileLayer3, &QAction::triggered, this, &MapDocumentActionHandler::showTileLayer3);
+    connect(mActionShowTileLayer4, &QAction::triggered, this, &MapDocumentActionHandler::showTileLayer4);
+    connect(mActionShowTileLayer5, &QAction::triggered, this, &MapDocumentActionHandler::showTileLayer5);
+    connect(mActionShowTileLayer6, &QAction::triggered, this, &MapDocumentActionHandler::showTileLayer6);
+    connect(mActionShowAllLayers, &QAction::triggered, this, &MapDocumentActionHandler::showAllLayers);
+
     updateActions();
     retranslateUi();
 }
@@ -193,6 +217,14 @@ void MapDocumentActionHandler::retranslateUi()
     mActionLayerViaCut->setText(tr("Layer via Cut"));
     mActionGroupLayers->setText(tr("&Group Layer"));
     mActionUngroupLayers->setText(tr("&Ungroup Layer"));
+
+    mActionShowTileLayer1->setText(tr("Show Layer 1"));
+    mActionShowTileLayer2->setText(tr("Show Layer 2"));
+    mActionShowTileLayer3->setText(tr("Show Layer 3"));
+    mActionShowTileLayer4->setText(tr("Show Layer 4"));
+    mActionShowTileLayer5->setText(tr("Show Layer 5"));
+    mActionShowTileLayer6->setText(tr("Show Layer 6"));
+    mActionShowAllLayers->setText(tr("Show All Layers"));
 
     mActionDuplicateLayer->setText(tr("&Duplicate Layer"));
     mActionMergeLayerDown->setText(tr("&Merge Layer Down"));
@@ -249,6 +281,14 @@ QMenu *MapDocumentActionHandler::createNewLayerMenu(QWidget *parent) const
     newLayerMenu->addSeparator();
     newLayerMenu->addAction(actionLayerViaCopy());
     newLayerMenu->addAction(actionLayerViaCut());
+
+    newLayerMenu->addAction(actionShowTileLayer1());
+    newLayerMenu->addAction(actionShowTileLayer2());
+    newLayerMenu->addAction(actionShowTileLayer3());
+    newLayerMenu->addAction(actionShowTileLayer4());
+    newLayerMenu->addAction(actionShowTileLayer5());
+    newLayerMenu->addAction(actionShowTileLayer6());
+    newLayerMenu->addAction(actionShowAllLayers());
 
     return newLayerMenu;
 }
@@ -627,6 +667,81 @@ void MapDocumentActionHandler::removeObjects()
         mMapDocument->removeObjects(mMapDocument->selectedObjects());
 }
 
+void MapDocumentActionHandler::showAllTileLayers()
+{
+    QUndoStack *undoStack = mMapDocument->undoStack();
+    undoStack->beginMacro(tr("Show All Layers"));
+
+    LayerIterator it(mMapDocument->map());
+    while (Layer *layer = it.next())
+    {
+        if (layer->layerType() == Layer::TileLayerType)
+        {
+            undoStack->push(new SetLayerVisible(mMapDocument, layer, true));
+        }
+    }
+
+    undoStack->endMacro();
+}
+
+void MapDocumentActionHandler::hideAllOtherTileLayers(int tileLayerToShow)
+{
+    int tLayerCount = 0;
+
+    LayerIterator it(mMapDocument->map());
+    while (Layer *layer = it.next())
+    {
+        if (layer->layerType() == Layer::TileLayerType)
+        {
+            tLayerCount += 1;
+
+            if (tileLayerToShow == tLayerCount)
+            {
+                mMapDocument->showOnlyLayer(layer);
+                break;
+            }
+        }
+    }
+}
+
+void MapDocumentActionHandler::showTileLayer1()
+{
+    if (mMapDocument)
+        hideAllOtherTileLayers(1);
+}
+void MapDocumentActionHandler::showTileLayer2()
+{
+    if (mMapDocument)
+        hideAllOtherTileLayers(2);
+}
+void MapDocumentActionHandler::showTileLayer3()
+{
+    if (mMapDocument)
+        hideAllOtherTileLayers(3);
+}
+void MapDocumentActionHandler::showTileLayer4()
+{
+    if (mMapDocument)
+        hideAllOtherTileLayers(4);
+}
+void MapDocumentActionHandler::showTileLayer5()
+{
+    if (mMapDocument)
+        hideAllOtherTileLayers(5);
+}
+void MapDocumentActionHandler::showTileLayer6()
+{
+    if (mMapDocument)
+        hideAllOtherTileLayers(6);
+}
+void MapDocumentActionHandler::showAllLayers()
+{
+    if (mMapDocument)
+    {
+        showAllTileLayers();
+    }
+}
+
 void MapDocumentActionHandler::moveObjectsToGroup(ObjectGroup *objectGroup)
 {
     if (mMapDocument) {
@@ -712,6 +827,14 @@ void MapDocumentActionHandler::updateActions()
     mActionToggleOtherLayers->setEnabled(currentLayer && (hasNextLayer || hasPreviousLayer));
     mActionRemoveLayer->setEnabled(currentLayer);
     mActionLayerProperties->setEnabled(currentLayer);
+
+    mActionShowTileLayer1->setEnabled(true);
+    mActionShowTileLayer2->setEnabled(true);
+    mActionShowTileLayer3->setEnabled(true);
+    mActionShowTileLayer4->setEnabled(true);
+    mActionShowTileLayer5->setEnabled(true);
+    mActionShowTileLayer6->setEnabled(true);
+    mActionShowAllLayers->setEnabled(true);
 
     mActionDuplicateObjects->setEnabled(selectedObjectsCount > 0);
     mActionRemoveObjects->setEnabled(selectedObjectsCount > 0);

@@ -88,6 +88,14 @@ public:
     QAction *actionDuplicateObjects() const { return mActionDuplicateObjects; }
     QAction *actionRemoveObjects() const { return mActionRemoveObjects; }
 
+    QAction *actionShowTileLayer1() const { return mActionShowTileLayer1; }
+    QAction *actionShowTileLayer2() const { return mActionShowTileLayer2; }
+    QAction *actionShowTileLayer3() const { return mActionShowTileLayer3; }
+    QAction *actionShowTileLayer4() const { return mActionShowTileLayer4; }
+    QAction *actionShowTileLayer5() const { return mActionShowTileLayer5; }
+    QAction *actionShowTileLayer6() const { return mActionShowTileLayer6; }
+    QAction *actionShowAllLayers() const { return mActionShowAllLayers; }
+
     QMenu *createNewLayerMenu(QWidget *parent) const;
     QMenu *createGroupLayerMenu(QWidget *parent) const;
 
@@ -130,6 +138,17 @@ public slots:
 
     void duplicateObjects();
     void removeObjects();
+
+    void showAllTileLayers();
+    void hideAllOtherTileLayers(int tileLayerToShow);
+    void showTileLayer1();
+    void showTileLayer2();
+    void showTileLayer3();
+    void showTileLayer4();
+    void showTileLayer5();
+    void showTileLayer6();
+    void showAllLayers();
+
     void moveObjectsToGroup(ObjectGroup *);
 
     void selectAllInstances(const MapObject *);
@@ -164,6 +183,14 @@ private:
     QAction *mActionMoveLayerDown;
     QAction *mActionToggleOtherLayers;
     QAction *mActionLayerProperties;
+
+    QAction *mActionShowTileLayer1;
+    QAction *mActionShowTileLayer2;
+    QAction *mActionShowTileLayer3;
+    QAction *mActionShowTileLayer4;
+    QAction *mActionShowTileLayer5;
+    QAction *mActionShowTileLayer6;
+    QAction *mActionShowAllLayers;
 
     QAction *mActionDuplicateObjects;
     QAction *mActionRemoveObjects;

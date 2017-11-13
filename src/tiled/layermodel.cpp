@@ -534,3 +534,29 @@ void LayerModel::toggleOtherLayers(Layer *layer)
 
     undoStack->endMacro();
 }
+
+/**
+ * Show only the specified layer
+ */
+void LayerModel::showOnlyLayer(Layer *layer)
+{
+    const auto& otherLayers = collectAllSiblings(layer);
+    if (otherLayers.isEmpty())
+        return;
+
+    QUndoStack *undoStack = mMapDocument->undoStack();
+    undoStack->beginMacro(tr("Hide Other Layers"));
+
+    // Show specified layer
+    undoStack->push(new SetLayerVisible(mMapDocument, layer, true));
+
+    // Hide all other tile layers
+    for (Layer *l : otherLayers) {
+        if (l->layerType() == Layer::TileLayerType)
+        {
+            undoStack->push(new SetLayerVisible(mMapDocument, l, false));
+        }
+    }
+
+    undoStack->endMacro();
+}
