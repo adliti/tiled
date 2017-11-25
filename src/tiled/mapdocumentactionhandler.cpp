@@ -698,6 +698,9 @@ void MapDocumentActionHandler::hideAllOtherTileLayers(int tileLayerToShow)
             if (tileLayerToShow == tLayerCount)
             {
                 mMapDocument->showOnlyLayer(layer);
+
+                // Change selected layer
+                mMapDocument->setCurrentLayer(layer);
                 break;
             }
         }
