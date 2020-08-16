@@ -1,14 +1,19 @@
 Export Formats
 ==============
 
-While there are many :doc:`libraries and frameworks </reference/support-for-tmx-maps>`
-that work directly with Tiled maps, Tiled also supports a number of
-additional file and export formats.
+While there are many :doc:`libraries and frameworks
+</reference/support-for-tmx-maps>` that work directly with Tiled maps, Tiled
+also supports a number of additional file and export formats, as well as
+:ref:`exporting a map to an image <export-as-image>`.
 
-Exporting can be done by clicking *File > Export*. When triggering the
-menu action multiple times, Tiled will only ask for the file name the
-first time. Exporting can also be automated using the ``--export-map``
-command-line parameter.
+Exporting can be done by clicking *File > Export*. When triggering the menu
+action multiple times, Tiled will only ask for the file name the first time.
+Exporting can also be automated using the ``--export-map`` and
+``--export-tileset`` command-line parameters.
+
+Several :ref:`export-options` are available, which are applied to maps
+or tilesets before they are exported (without affecting the map
+or tileset itself).
 
 .. note::
 
@@ -38,8 +43,8 @@ tilesets.
 Lua
 ---
 
-Maps can be exported to Lua code. This export option supports most of
-Tiled's features and is useful when using a Lua-based framework like
+Maps and tilesets can be exported to Lua code. This export option supports
+most of Tiled's features and is useful when using a Lua-based framework like
 `LÖVE`_ (with `Simple Tiled Implementation`_), `Corona`_ (with
 `ponytiled`_ or `Dusk Engine`_) or `Defold`_.
 
@@ -89,11 +94,12 @@ combination with rotation doesn't appear to work in GameMaker).
 
 .. raw:: html
 
-   <div class="new">New in Tiled 1.1</div>
+   <div class="new new-prev">Since Tiled 1.1</div>
 
 The following custom properties can be set on objects to affect the
 exported instance:
 
+* string ``code`` (instance creation code, default: "")
 * float ``scaleX`` (default: derived from tile or 1.0)
 * float ``scaleY`` (default: derived from tile or 1.0)
 * int ``originX`` (default: 0)
@@ -118,7 +124,7 @@ position of the exported instance.
 
 .. raw:: html
 
-   <div class="new">New in Tiled 1.1</div>
+   <div class="new new-prev">Since Tiled 1.1</div>
 
 Views
 ~~~~~
@@ -169,6 +175,7 @@ General
 * bool ``persistent`` (default: false)
 * bool ``clearDisplayBuffer`` (default: true)
 * bool ``clearViewBackground`` (default: false)
+* string ``code`` (map creation code, default: "")
 
 Physics
 ^^^^^^^
@@ -182,9 +189,20 @@ Physics
 * float ``PhysicsWorldGravityY`` (default: 10.0)
 * float ``PhysicsWorldPixToMeters`` (default: 0.1)
 
+Layer Properties
+~~~~~~~~~~~~~~~~
+
+Both tile layers and object layers may produce "tile" elements in the exported
+room file. Their depth is set automatically, with tiles from the bottom-most
+layer getting a value of 10000000 (the GameMaker default) and counting up from
+there. If you want to set a custom depth value you can set the following
+property on the layer:
+
+* int ``depth`` (default: 10000000 + N)
+
 .. raw:: html
 
-   <div class="new">New in Tiled 1.1</div>
+   <div class="new new-prev">Since Tiled 1.1</div>
 
 tBIN
 ----
@@ -200,23 +218,54 @@ because it won't store everything (most notably it doesn't support
 object layers in general, nor external tilesets), so you need to know
 what you are doing.
 
-.. warning::
+.. note::
 
    The tBIN format supports setting custom properties on the tiles of a
    tile layer. Since Tiled does not support this directly, "TileData"
    objects are created that match the location of the tile, on which
-   such properties are then stored. Care should be taken to keep these
-   objects aligned to the grid for the saving to work correctly.
+   such properties are then stored.
 
 Defold
 ------
 
-Tiled can export a map to a `Defold Tile Map <https://www.defold.com/manuals/2dgraphics/#_tile_maps>`__ (\*.tilemap).
-This component only supports tile layers and only a single tileset may be used.
-The plugin is disabled by default.
+Tiled can export to Defold using one of the two supplied plugins. Both are
+disabled by default.
 
-Upon export, the ``tile_set`` property of the Tile Map is left empty, so
-it will need to be set up in Defold after each export.
+**defold**
+
+This plugin exports a map to a `Defold Tile Map <https://www.defold.com/manuals/tilemap/>`__ (\*.tilemap).
+It only supports tile layers and only a single tileset may be used.
+
+Upon export, the ``tile_set`` property of the Tile Map is left empty, so it
+will need to be set up in Defold after each export.
+
+**defoldcollection**
+
+This plugin exports a map to a `Defold Collection
+<https://www.defold.com/manuals/building-blocks/>`__ (\*.collection), while
+also creating multiple .tilemap files.
+
+It supports:
+
+* Group layers (**only top-level group layers are supported, not nested ones!**)
+* Multiple Tilesets per Tilemap
+
+Upon export:
+
+* The ``Path`` property of each Tileset may need to be set up manually in
+  Defold after each export. However, Tiled will attempt to find the
+  .tilesource file corresponding with the name your Tileset in Tiled in your
+  project's ``/tilesources/`` directory. If one is found, manual adjustments
+  won't be necessary.
+
+* If you create custom properties on your map called ``x-offset`` and
+  ``y-offset``, these values will be used as coordinates for your top-level
+  GameObject in the Collection. This is useful when working with :doc:`Worlds
+  <worlds>`.
+
+All layers of a Tilemap will have Z-index property assigned with values
+ranging between 0 and 0.1. The plugin supports the use of 9999 Group Layers
+and 9999 Tile Layers per Group Layer.
 
 When any additional information from the map is needed, the map can be
 exported in :ref:`Lua format <lua-export>` and loaded as Defold script.
@@ -236,6 +285,39 @@ tengine
     Adds support for exporting to `T-Engine4 <https://te4.org/te4>`__ maps (\*.lua)
 
 These plugins are disabled by default. They can be enabled in *Edit > Preferences > Plugins*.
+
+JavaScript
+~~~~~~~~~~
+
+It is possible to add custom export formats using :doc:`scripting
+</reference/scripting>` (by calling :ref:`tiled.registerMapFormat
+<script-registerMapFormat>` or :ref:`tiled.registerTilesetFormat
+<script-registerTilesetFormat>`).
+
+Python Scripts
+~~~~~~~~~~~~~~
+
+It is also possible to write :doc:`Python scripts <python>` to add
+support for importing or exporting custom map formats.
+
+.. _export-as-image:
+
+Export as Image
+---------------
+
+Maps can be exported as image. Tiled supports most common image formats.
+Choose *File -> Export as Image...* to open the relevant dialog.
+
+Since exporting a map can in some cases result in a huge image, a *Use current
+zoom level* option is provided to allow exporting the map at the size it's
+currently displayed at.
+
+For repeatedly converting a map to an image, manually triggering this export
+isn't very convenient. For this purpose, a tool called ``tmxrasterizer`` ships
+with Tiled, which contrary to its name is able to render any supported map
+format to an image. It is also able to render :doc:`entire worlds <worlds>` to
+an image. On Linux this tool can be set up for generating thumbnail previews
+of maps in the file manager.
 
 
 .. _LÖVE: https://love2d.org/

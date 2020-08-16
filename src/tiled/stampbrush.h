@@ -32,8 +32,6 @@ namespace Tiled {
 class Tile;
 class WangSet;
 
-namespace Internal {
-
 class MapDocument;
 class StampActions;
 class WangFiller;
@@ -49,7 +47,7 @@ class StampBrush : public AbstractTileTool
 
 public:
     StampBrush(QObject *parent = nullptr);
-    ~StampBrush();
+    ~StampBrush() override;
 
     void deactivate(MapScene *scene) override;
 
@@ -90,28 +88,31 @@ signals:
     void wangFillChanged(bool value);
 
 protected:
-    void tilePositionChanged(const QPoint &tilePos) override;
+    void tilePositionChanged(QPoint tilePos) override;
 
     void mapDocumentChanged(MapDocument *oldDocument,
                             MapDocument *newDocument) override;
 
+    QList<Layer *> targetLayers() const override;
+
 private:
     enum PaintFlags {
-        Mergeable               = 0x1,
-        SuppressRegionEdited    = 0x2
+        Mergeable = 0x1
     };
 
     void beginPaint();
-    QRegion doPaint(int flags = 0);
+    void doPaint(int flags = 0,
+                 QHash<TileLayer *, QRegion> *paintedRegions = nullptr);
 
     void beginCapture();
     void endCapture();
 
+    void updateBrushBehavior();
     void updatePreview();
     void updatePreview(QPoint tilePos);
 
     TileStamp mStamp;
-    SharedTileLayer mPreviewLayer;
+    SharedMap mPreviewMap;
     QVector<SharedTileset> mMissingTilesets;
 
     CaptureStampHelper mCaptureStampHelper;
@@ -139,6 +140,7 @@ private:
      * This stores the current behavior.
      */
     BrushBehavior mBrushBehavior;
+    Qt::KeyboardModifiers mModifiers;
 
     /**
      * The starting position needed for drawing lines and circles.
@@ -148,15 +150,16 @@ private:
     QPoint mStampReference;
 
     bool mIsRandom;
-    RandomPicker<Cell, float> mRandomCellPicker;
+    RandomPicker<Cell> mRandomCellPicker;
 
     bool mIsWangFill;
     WangSet *mWangSet;
 
+    bool mRandomCacheValid;
     void updateRandomList();
+    void invalidateRandomCache();
 
     StampActions *mStampActions;
 };
 
-} // namespace Internal
 } // namespace Tiled
