@@ -126,6 +126,11 @@ int objectRefTypeId()
     return qMetaTypeId<ObjectRef>();
 }
 
+int adlitiScriptTypeId()
+{
+    return qMetaTypeId<AdlitiScript>();
+}
+
 QString typeToName(int type)
 {
     switch (type) {
@@ -140,6 +145,8 @@ QString typeToName(int type)
             return QStringLiteral("file");
         if (type == objectRefTypeId())
             return QStringLiteral("object");
+        if (type == adlitiScriptTypeId())
+            return QStringLiteral("adlitiScript");
     }
     return QLatin1String(QVariant::typeToName(type));
 }
@@ -156,6 +163,8 @@ int nameToType(const QString &name)
         return filePathTypeId();
     if (name == QLatin1String("object"))
         return objectRefTypeId();
+    if (name == QLatin1String("adlitiScript"))
+        return adlitiScriptTypeId();
 
     return QVariant::nameToType(name.toLatin1().constData());
 }
@@ -175,6 +184,9 @@ QVariant toExportValue(const QVariant &value)
     if (type == objectRefTypeId())
         return ObjectRef::toInt(value.value<ObjectRef>());
 
+    if (type == adlitiScriptTypeId())
+        return AdlitiScript::toString(value.value<AdlitiScript>());
+
     return value;
 }
 
@@ -191,6 +203,9 @@ QVariant fromExportValue(const QVariant &value, int type)
 
     if (type == objectRefTypeId())
         return QVariant::fromValue(ObjectRef::fromInt(value.toInt()));
+
+    if (type == adlitiScriptTypeId())
+        return QVariant::fromValue(AdlitiScript::fromString(value.toString()));
 
     QVariant variant(value);
     variant.convert(type);
@@ -224,6 +239,9 @@ void initializeMetatypes()
 
     QMetaType::registerConverter<FilePath, QString>(&FilePath::toString);
     QMetaType::registerConverter<QString, FilePath>(&FilePath::fromString);
+
+    QMetaType::registerConverter<AdlitiScript, QString>(&AdlitiScript::toString);
+    QMetaType::registerConverter<QString, AdlitiScript>(&AdlitiScript::fromString);
 }
 
 } // namespace Tiled

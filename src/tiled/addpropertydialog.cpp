@@ -53,6 +53,7 @@ AddPropertyDialog::AddPropertyDialog(QWidget *parent)
     mUi->typeBox->addItem(typeToName(filePathTypeId()),  QVariant::fromValue(FilePath()));
     mUi->typeBox->addItem(typeToName(QVariant::Int),     0);
     mUi->typeBox->addItem(typeToName(objectRefTypeId()), QVariant::fromValue(ObjectRef()));
+    mUi->typeBox->addItem(typeToName(adlitiScriptTypeId()), QVariant::fromValue(AdlitiScript()));
     mUi->typeBox->addItem(typeToName(QVariant::String),  QString());
 
     mUi->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);

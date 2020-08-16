@@ -51,6 +51,18 @@ public:
     static FilePath fromString(const QString &string);
 };
 
+class TILEDSHARED_EXPORT AdlitiScript
+{
+    Q_GADGET
+    Q_PROPERTY(QString script MEMBER script)
+
+public:
+    QString script;
+
+    static QString toString(const AdlitiScript &script) { return script.script; };
+    static AdlitiScript fromString(const QString &string) { return AdlitiScript { string }; };
+};
+
 struct TILEDSHARED_EXPORT ObjectRef
 {
     Q_GADGET
@@ -119,6 +131,7 @@ TILEDSHARED_EXPORT Properties propertiesFromJson(const QJsonArray &json);
 
 TILEDSHARED_EXPORT int filePathTypeId();
 TILEDSHARED_EXPORT int objectRefTypeId();
+TILEDSHARED_EXPORT int adlitiScriptTypeId();
 
 TILEDSHARED_EXPORT QString typeToName(int type);
 TILEDSHARED_EXPORT int nameToType(const QString &name);
@@ -135,3 +148,4 @@ TILEDSHARED_EXPORT void initializeMetatypes();
 
 Q_DECLARE_METATYPE(Tiled::FilePath)
 Q_DECLARE_METATYPE(Tiled::ObjectRef)
+Q_DECLARE_METATYPE(Tiled::AdlitiScript)
