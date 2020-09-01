@@ -32,6 +32,24 @@ namespace Tiled {
 class MapDocument;
 class MapObject;
 
+class DisplayAdlitiScript {
+public:
+    explicit DisplayAdlitiScript(AdlitiScript ref = AdlitiScript(),
+                              MapDocument *mapDocument = nullptr)
+        : ref(ref)
+        , mapDocument(mapDocument)
+    {}
+
+    bool operator==(const DisplayAdlitiScript &o) const
+    { return ref.script == o.ref.script && mapDocument == o.mapDocument; }
+
+    QString script() const { return ref.script; }
+    MapObject *object() const;
+
+    AdlitiScript ref;
+    MapDocument *mapDocument;
+};
+
 class DisplayObjectRef {
 public:
     explicit DisplayObjectRef(ObjectRef ref = ObjectRef(),
@@ -72,6 +90,7 @@ public:
 
     static int tilesetParametersTypeId();
     static int alignmentTypeId();
+    static int displayAdlitiScriptTypeId();
     static int displayObjectRefTypeId();
 
 public slots:
@@ -128,4 +147,5 @@ private:
 
 } // namespace Tiled
 
+Q_DECLARE_METATYPE(Tiled::DisplayAdlitiScript)
 Q_DECLARE_METATYPE(Tiled::DisplayObjectRef)

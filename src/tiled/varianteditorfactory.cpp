@@ -21,6 +21,7 @@
 
 #include "varianteditorfactory.h"
 
+#include "adlitiscriptedit.h"
 #include "fileedit.h"
 #include "objectrefedit.h"
 #include "textpropertyedit.h"
@@ -86,6 +87,7 @@ VariantEditorFactory::~VariantEditorFactory()
 {
     qDeleteAll(mFileEditToProperty.keyBegin(), mFileEditToProperty.keyEnd());
     qDeleteAll(mTilesetEditToProperty.keyBegin(), mTilesetEditToProperty.keyEnd());
+    qDeleteAll(mAdlitiScriptEditToProperty.keyBegin(), mAdlitiScriptEditToProperty.keyEnd());
     qDeleteAll(mTextPropertyEditToProperty.keyBegin(), mTextPropertyEditToProperty.keyEnd());
     qDeleteAll(mObjectRefEditToProperty.keyBegin(), mObjectRefEditToProperty.keyEnd());
     qDeleteAll(mComboBoxToProperty.keyBegin(), mComboBoxToProperty.keyEnd());
@@ -105,6 +107,26 @@ QWidget *VariantEditorFactory::createEditor(QtVariantPropertyManager *manager,
                                             QWidget *parent)
 {
     const int type = manager->propertyType(property);
+
+    if (type == VariantPropertyManager::displayAdlitiScriptTypeId()) {
+        auto editor = new AdlitiScriptEdit(parent);
+        auto adlitiScript = manager->value(property).value<DisplayAdlitiScript>();
+        editor->setValue(adlitiScript);
+        mCreatedAdlitiScriptEdits[property].append(editor);
+        mAdlitiScriptEditToProperty[editor] = property;
+
+        connect(editor, &AdlitiScriptEdit::valueChanged,
+                this, &VariantEditorFactory::adlitiScriptEditValueChanged);
+        connect(editor, &QObject::destroyed,
+                this, &VariantEditorFactory::slotEditorDestroyed);
+
+        auto resetEditor = new ResetWidget(property, editor, parent);
+
+        connect(resetEditor, &ResetWidget::resetProperty,
+                this, &VariantEditorFactory::resetProperty);
+
+        return resetEditor;
+    }
 
     if (type == filePathTypeId()) {
         FileEdit *editor = new FileEdit(parent);
@@ -236,6 +258,10 @@ void VariantEditorFactory::slotPropertyChanged(QtProperty *property,
         for (ObjectRefEdit *objectRefEdit : qAsConst(mCreatedObjectRefEdits)[property])
             objectRefEdit->setValue(value.value<DisplayObjectRef>());
     }
+    else if (mCreatedAdlitiScriptEdits.contains(property)) {
+        for (AdlitiScriptEdit *adlitiScriptEdit : qAsConst(mCreatedAdlitiScriptEdits)[property])
+            adlitiScriptEdit->setValue(value.value<DisplayAdlitiScript>());
+    }
 }
 
 void VariantEditorFactory::slotPropertyAttributeChanged(QtProperty *property,
@@ -313,8 +339,33 @@ void VariantEditorFactory::objectRefEditValueChanged(const DisplayObjectRef &val
     }
 }
 
+void VariantEditorFactory::adlitiScriptEditValueChanged(const DisplayAdlitiScript &value)
+{
+    auto adlitiScriptEdit = qobject_cast<AdlitiScriptEdit*>(sender());
+    Q_ASSERT(adlitiScriptEdit);
+    if (QtProperty *property = mAdlitiScriptEditToProperty.value(adlitiScriptEdit)) {
+        QtVariantPropertyManager *manager = propertyManager(property);
+        if (!manager)
+            return;
+        manager->setValue(property, QVariant::fromValue(value));
+    }
+}
+
 void VariantEditorFactory::slotEditorDestroyed(QObject *object)
 {
+    // Check if it was an AdlitiScriptEdit
+    {
+        AdlitiScriptEdit *adlitiScriptEdit = static_cast<AdlitiScriptEdit*>(object);
+
+        if (QtProperty *property = mAdlitiScriptEditToProperty.value(adlitiScriptEdit)) {
+            mAdlitiScriptEditToProperty.remove(adlitiScriptEdit);
+            mCreatedAdlitiScriptEdits[property].removeAll(adlitiScriptEdit);
+            if (mCreatedAdlitiScriptEdits[property].isEmpty())
+                mCreatedAdlitiScriptEdits.remove(property);
+            return;
+        }
+    }
+
     // Check if it was an ObjectRefEdit
     {
         ObjectRefEdit *objectRefEdit = static_cast<ObjectRefEdit*>(object);

@@ -1,7 +1,9 @@
 #include "adlitieventeditor.h"
 #include "ui_adlitieventeditor.h"
 
-AdlitiEventEditor::AdlitiEventEditor(QWidget *parent) :
+namespace Tiled {
+
+AdlitiEventEditor::AdlitiEventEditor(const DisplayAdlitiScript &startingValue, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AdlitiEventEditor)
 {
@@ -11,4 +13,11 @@ AdlitiEventEditor::AdlitiEventEditor(QWidget *parent) :
 AdlitiEventEditor::~AdlitiEventEditor()
 {
     delete ui;
+}
+
+}
+
+void Tiled::AdlitiEventEditor::on_buttonBox_clicked(QAbstractButton *button)
+{
+
 }

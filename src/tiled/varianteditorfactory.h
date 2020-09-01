@@ -27,6 +27,8 @@ class QComboBox;
 
 namespace Tiled {
 
+class AdlitiScriptEdit;
+class DisplayAdlitiScript;
 class DisplayObjectRef;
 class FileEdit;
 class ObjectRefEdit;
@@ -69,8 +71,12 @@ private:
     void fileEditFileUrlChanged(const QUrl &value);
     void textPropertyEditTextChanged(const QString &value);
     void comboBoxPropertyEditTextChanged(const QString &value);
+    void adlitiScriptEditValueChanged(const DisplayAdlitiScript &value);
     void objectRefEditValueChanged(const DisplayObjectRef &value);
     void slotEditorDestroyed(QObject *object);
+
+    QMap<QtProperty *, QList<AdlitiScriptEdit *> > mCreatedAdlitiScriptEdits;
+    QMap<AdlitiScriptEdit *, QtProperty *> mAdlitiScriptEditToProperty;
 
     QMap<QtProperty *, QList<FileEdit *> > mCreatedFileEdits;
     QMap<FileEdit *, QtProperty *> mFileEditToProperty;

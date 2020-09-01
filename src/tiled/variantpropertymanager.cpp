@@ -80,6 +80,7 @@ bool VariantPropertyManager::isPropertyTypeSupported(int propertyType) const
 {
     if (propertyType == filePathTypeId()
             || propertyType == displayObjectRefTypeId()
+            || propertyType == displayAdlitiScriptTypeId()
             || propertyType == tilesetParametersTypeId()
             || propertyType == alignmentTypeId())
         return true;
@@ -91,6 +92,8 @@ int VariantPropertyManager::valueType(int propertyType) const
     if (propertyType == filePathTypeId())
         return propertyType;
     if (propertyType == displayObjectRefTypeId())
+        return propertyType;
+    if (propertyType == adlitiScriptTypeId())
         return propertyType;
     if (propertyType == tilesetParametersTypeId())
         return qMetaTypeId<TilesetDocument*>();
@@ -153,6 +156,11 @@ int VariantPropertyManager::alignmentTypeId()
     return qMetaTypeId<Qt::Alignment>();
 }
 
+int VariantPropertyManager::displayAdlitiScriptTypeId()
+{
+    return qMetaTypeId<DisplayAdlitiScript>();
+}
+
 int VariantPropertyManager::displayObjectRefTypeId()
 {
     return qMetaTypeId<DisplayObjectRef>();
@@ -189,6 +197,18 @@ QString VariantPropertyManager::valueText(const QtProperty *property) const
                 return objectRefLabel(object);
 
             return tr("%1: Object not found").arg(QString::number(ref.id()));
+        }
+
+        if (typeId == adlitiScriptTypeId()) {
+            const auto ref = value.value<DisplayAdlitiScript>();
+
+            if (ref.script().isEmpty())
+                return tr("Unset");
+
+            /* if (auto object = ref.object())
+                return objectRefLabel(object); */
+
+            return tr("%1: Object not found").arg(ref.script());
         }
 
         if (typeId == filePathTypeId()) {
@@ -245,6 +265,13 @@ QIcon VariantPropertyManager::valueIcon(const QtProperty *property) const
         }
 
         if (typeId == displayObjectRefTypeId()) {
+            const DisplayObjectRef ref = value.value<DisplayObjectRef>();
+            if (auto object = ref.object())
+                return ObjectIconManager::instance().iconForObject(object);
+        }
+
+        if (typeId == displayAdlitiScriptTypeId()) {
+            // TODO: Change this for Adliti stuff!
             const DisplayObjectRef ref = value.value<DisplayObjectRef>();
             if (auto object = ref.object())
                 return ObjectIconManager::instance().iconForObject(object);
@@ -342,6 +369,7 @@ void VariantPropertyManager::initializeProperty(QtProperty *property)
     const int type = propertyType(property);
     if (type == filePathTypeId()
             || type == displayObjectRefTypeId()
+            || type == displayAdlitiScriptTypeId()
             || type == tilesetParametersTypeId()) {
         mValues[property] = QVariant();
         if (type == filePathTypeId())

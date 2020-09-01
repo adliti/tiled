@@ -100,6 +100,8 @@ QtGuiApplication {
         "adlitieventeditor.cpp",
         "adlitieventeditor.h",
         "adlitieventeditor.ui",
+        "adlitiscriptedit.cpp",
+        "adlitiscriptedit.h",
         "automapper.cpp",
         "automapper.h",
         "automapperwrapper.cpp",

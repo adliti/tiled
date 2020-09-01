@@ -1963,6 +1963,8 @@ QVariant PropertyBrowser::toDisplayValue(const QVariant &value) const
 {
     if (value.userType() == objectRefTypeId())
         return QVariant::fromValue(DisplayObjectRef { value.value<ObjectRef>(), mMapDocument });
+    else if (value.userType() == adlitiScriptTypeId())
+        return QVariant::fromValue(DisplayAdlitiScript { value.value<AdlitiScript>(), mMapDocument });
 
     return value;
 }
@@ -1971,6 +1973,8 @@ QVariant PropertyBrowser::fromDisplayValue(const QVariant &value) const
 {
     if (value.userType() == VariantPropertyManager::displayObjectRefTypeId())
         return QVariant::fromValue(value.value<DisplayObjectRef>().ref);
+    else if (value.userType() == VariantPropertyManager::displayAdlitiScriptTypeId())
+        return QVariant::fromValue(value.value<DisplayAdlitiScript>().ref);
 
     return value;
 }

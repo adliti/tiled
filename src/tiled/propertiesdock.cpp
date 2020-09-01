@@ -385,6 +385,19 @@ void PropertiesDock::showContextMenu(const QPoint &pos)
                     }
                 })->setEnabled(objectRef.object());
             }
+        } else if (value.userType() == adlitiScriptTypeId()) {
+            if (auto mapDocument = qobject_cast<MapDocument*>(mDocument)) {
+                const DisplayAdlitiScript adlitiScript(value.value<AdlitiScript>(), mapDocument);
+
+                // TODO: Add context specific menu links for adlitiScript
+                /*
+                contextMenu.addAction(tr("Go to Object"), [=] {
+                    if (auto object = objectRef.object()) {
+                        objectRef.mapDocument->setSelectedObjects({object});
+                        emit objectRef.mapDocument->focusMapObjectRequested(object);
+                    }
+                })->setEnabled(objectRef.object()); */
+            }
         }
     }
 
